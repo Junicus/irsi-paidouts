@@ -1,0 +1,9 @@
+{
+  "name": "irsi-paidouts",
+  "version": "1.0.0",
+  "description": "Paid Outs Portal",
+  "main": "index.js",
+  "author": "Nelson Segarra",
+  "license": "MIT",
+  "private": true
+}
