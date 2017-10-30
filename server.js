@@ -1,32 +1,44 @@
 import express from 'express';
 import graphQLHTTP from 'express-graphql';
-import { addMockFunctionsToSchema } from 'graphql-tools';
-import './src/database';
+import morgan from 'morgan';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import { Mockgoose } from 'mockgoose';
+import { schema } from './graphql/schema';
 
-import * as tables from './src/tables';
+mongoose.Promise = global.Promise;
 
-import schema from './graphql/schema';
-import mocks from './graphql/mocks';
+const graphQLServer = express();
+graphQLServer.set('port', (process.env.API_PORT || 3001));
 
-console.log({ starting: true });
+graphQLServer.use(morgan('dev'));
 
-const PORT = 3001;
-const app = express();
+graphQLServer.use(bodyParser.json());
+graphQLServer.use(cors());
 
-let useGraphiql = false;
-/*if (process.env.NODE_ENV === 'development') {
-    useGraphiql = true;
-    addMockFunctionsToSchema({
-        schema,
-        mocks
-    });
-}*/
-
-app.use('/graphql', graphQLHTTP({
+graphQLServer.use('/graphql', graphQLHTTP({
     schema,
-    graphiql: useGraphiql
+    pretty: true,
+    graphiql: true
 }));
 
-app.listen(PORT, () => {
-    console.log({ listening: PORT, running: true });
+graphQLServer.use(function redirect(req, res) {
+    res.redirect('/graphql');
 });
+
+if (process.env.MONGO_URI) {
+    mongoose.connect(`${process.env.MONGO_URI}paidouts`, { useMongoClient: true }).then(
+        () => console.log('connected to mongo'),
+        (err) => console.error(err)
+    );
+} else {
+    const mockgoose = new Mockgoose(mongoose);
+    mockgoose.prepareStorage().then(() => {
+        mongoose.connect('mongodb://localhost/paidouts', { useMongoClient: true }).then(
+            () => console.log('connected to mongo'),
+            (err) => console.error(err));
+    });
+}
+
+export default graphQLServer;

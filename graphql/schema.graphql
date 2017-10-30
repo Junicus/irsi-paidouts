@@ -1,0 +1,17 @@
+input CreateAccountInput {
+    number: String!
+    name: String!
+}
+
+input CreateStoreInput {
+    name: String!
+}
+
+input CreateVendorInput {
+    name: String!
+}
+
+input InvoiceDetailInput {
+    account: ID!
+    amount: Float!
+}
