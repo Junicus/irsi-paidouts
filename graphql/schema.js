@@ -55,9 +55,15 @@ const { nodeInterface, nodeField } = nodeDefinitions(
     }
 );
 
+const getViewer = () => ({});
+
 const Query = new GraphQLObjectType({
     name: 'Query',
     fields: () => ({
+        viewer: {
+            type: userType,
+            resolve: () => getViewer()
+        },
         node: nodeField,
         vendors: {
             type: new GraphQLList(vendorType),
@@ -78,6 +84,25 @@ const Query = new GraphQLObjectType({
             }
         }
     })
+});
+
+const userType = new GraphQLObjectType({
+    name: 'User',
+    fields: () => ({
+        id: globalIdField('User'),
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        stores: {
+            type: storesConnection,
+            args: {
+                ...connectionArgs
+            },
+            resolve: (user, args) => {
+                return [];
+            }
+        }
+    }),
+    interfaces: [nodeInterface]
 });
 
 const vendorType = new GraphQLObjectType({
@@ -135,6 +160,7 @@ const invoiceType = new GraphQLObjectType({
 });
 
 const { connectionType: invoicesConnection, edgeType: invoicesEdge } = connectionDefinitions({ name: 'Invoices', nodeType: invoiceType });
+const { connectionType: storesConnection, edgeType: storesEdge } = connectionDefinitions({ name: 'Stores', nodeType: storeType });
 
 export const schema = new GraphQLSchema({
     query: Query,

@@ -1,8 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
 import registerServiceWorker from './registerServiceWorker';
+import { Provider } from 'react-redux';
+import { createHashHistory } from 'history';
+import { syncHistoryWithStore } from 'react-router-redux';
+import { configureStore } from './store/configure-store';
+import Router from './router/router';
+import App from './containers/App';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+import './index.css';
+
+const initialState = window.initialReduxState;
+const history = createHashHistory();
+const store = configureStore(history);
+const enhancedHistory = syncHistoryWithStore(history, store);
+
+ReactDOM.render(
+    <Provider store={store}>
+        <App history={enhancedHistory} store={store} />
+    </Provider>, document.getElementById('root'));
 registerServiceWorker();

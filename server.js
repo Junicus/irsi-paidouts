@@ -1,3 +1,4 @@
+require('dotenv').config();
 import express from 'express';
 import graphQLHTTP from 'express-graphql';
 import morgan from 'morgan';
@@ -6,6 +7,22 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import { Mockgoose } from 'mockgoose';
 import { schema } from './graphql/schema';
+import passport from 'passport';
+import { BearerStrategy } from 'passport-azure-ad';
+
+import { credentials } from './config';
+
+const authenticatedTokens = [];
+
+const authenticationStrategy = new BearerStrategy(credentials, (token, done) => {
+    let userToken = authenticatedTokens.find((user) => user.sub === token.sub);
+    if (!userToken) {
+        authenticatedTokens.push(token);
+    }
+    return done(null, user, token);
+});
+
+passport.use(authenticationStrategy);
 
 mongoose.Promise = global.Promise;
 
@@ -17,6 +34,10 @@ graphQLServer.use(morgan('dev'));
 graphQLServer.use(bodyParser.json());
 graphQLServer.use(cors());
 
+graphQLServer.use(passport.initialize());
+graphQLServer.use(passport.session());
+
+//graphQLServer.use('/graphql', passport.authenticate('oauth-bearer', { session: false }), graphQLHTTP({
 graphQLServer.use('/graphql', graphQLHTTP({
     schema,
     pretty: true,
