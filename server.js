@@ -18,8 +18,7 @@ const options = {
     issuer: credentials.issuer,
     audience: credentials.issuer,
     validateIssuer: true,
-    passReqToCallback: false,
-    loggingLevel: 'info'
+    passReqToCallback: false
 };
 
 const users = [];
@@ -67,7 +66,13 @@ const authenticationStrategy = new BearerStrategy(options, (token, done) => {
 passport.use(authenticationStrategy);
 
 graphQLServer.use('/graphql', passport.authenticate('oauth-bearer', { session: false }), graphQLHTTP({
-    //graphQLServer.use('/graphql', graphQLHTTP({
+//graphQLServer.use('/graphql', graphQLHTTP({
+    schema,
+    pretty: true,
+    graphiql: true
+}));
+
+graphQLServer.use('/graphql2', graphQLHTTP({
     schema,
     pretty: true,
     graphiql: true

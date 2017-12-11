@@ -21,6 +21,8 @@ import {
 
 import * as database from '../data/database';
 
+import { Vendor, Account, Store, Invoice, User } from '../data/tables';
+
 const { nodeInterface, nodeField } = nodeDefinitions(
     (globalId) => {
         const { type, id } = fromGlobalId(globalId);
@@ -33,9 +35,11 @@ const { nodeInterface, nodeField } = nodeDefinitions(
                 return database.Stores.getStore(id);
             case 'Invoice':
                 return database.Invoices.getInvoice(id);
-
+            case 'User':
+                return database.Users.getUser(id);
+            default:
+                return null;
         }
-        return null;
     },
     (obj) => {
         if (obj instanceof Vendor) {
@@ -50,19 +54,31 @@ const { nodeInterface, nodeField } = nodeDefinitions(
         if (obj instanceof Invoice) {
             return invoiceType;
         }
+        if (obj instanceof User) {
+            return userType;
+        }
 
         return null;
     }
 );
-
-const getViewer = () => ({});
 
 const Query = new GraphQLObjectType({
     name: 'Query',
     fields: () => ({
         viewer: {
             type: userType,
-            resolve: () => getViewer()
+            resolve: (_, args, context) => {
+                const { user } = context;
+                return database.Users.getUserBySub(user.sub).then((doc) => {
+                    if (doc) {
+                        return doc;
+                    } else {
+                        return database.Users.createUser(user).then((doc) => {
+                            return doc;
+                        });
+                    }
+                });
+            }
         },
         node: nodeField,
         vendors: {
@@ -75,12 +91,6 @@ const Query = new GraphQLObjectType({
             type: new GraphQLList(accountType),
             resolve: () => {
                 return database.Accounts.getAccounts();
-            }
-        },
-        stores: {
-            type: new GraphQLList(storeType),
-            resolve: () => {
-                return database.Stores.getStores();
             }
         }
     })
@@ -98,7 +108,8 @@ const userType = new GraphQLObjectType({
                 ...connectionArgs
             },
             resolve: (user, args) => {
-                return [];
+                console.log(user.id)
+                return connectionFromPromisedArray(database.Stores.getStoresByUser(user.id), args);
             }
         }
     }),

@@ -7,5 +7,3 @@ export const credentials = {
     identityMetadata: `https://login.microsoftonline.com/${tenantID}/.well-known/openid-configuration`,
     clientID
 };
-
-console.log(credentials);

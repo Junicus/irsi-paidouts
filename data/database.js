@@ -1,15 +1,45 @@
 import * as tables from './tables';
 
+export const Users = {
+    getUser: (id) => {
+        return new Promise((resolve, reject) => {
+            tables.User.findById(id).then((doc) => resolve(doc), (err) => reject(err));
+        });
+    },
+    getUserBySub: (sub) => {
+        return new Promise((resolve, reject) => {
+            tables.User.findOne({ sub: sub }).then(doc => resolve(doc), err => reject(err));
+        });
+    },
+    createUser: (user) => {
+        return new Promise((resolve, reject) => {
+            let newUser = new tables.User({
+                sub: user.sub,
+                name: user.name,
+                email: user.unique_name
+            });
+            newUser.save().then((doc) => resolve(doc), (err) => reject(err));
+        });
+    }
+}
+
 export const Stores = {
     getStore: (id) => {
         return new Promise((resolve, reject) => {
-            console.log('find by id', id);
             tables.Store.findById(id).then((doc) => resolve(doc), (err) => reject(err));
         });
     },
     getStores: () => {
         return new Promise((resolve, reject) => {
             tables.Store.find({}).then((doc) => resolve(doc), (err) => reject(err));
+        });
+    },
+    getStoresByUser: (id) => {
+console.log(id);
+        return new Promise((resolve, reject) => {
+            tables.User.findById(id).populate('stores').then((doc) => {
+                resolve(doc.stores);
+            }, (err) => reject(err));
         });
     },
     createStore: (args, ctx) => {
