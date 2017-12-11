@@ -12,17 +12,20 @@ import { BearerStrategy } from 'passport-azure-ad';
 
 import { credentials } from './config';
 
-const authenticatedTokens = [];
+const options = {
+    identityMetadata: credentials.identityMetadata,
+    clientID: credentials.clientID,
+    issuer: credentials.issuer,
+    audience: credentials.issuer,
+    validateIssuer: true,
+    passReqToCallback: false,
+    loggingLevel: 'info'
+};
 
-const authenticationStrategy = new BearerStrategy(credentials, (token, done) => {
-    let userToken = authenticatedTokens.find((user) => user.sub === token.sub);
-    if (!userToken) {
-        authenticatedTokens.push(token);
-    }
-    return done(null, user, token);
-});
+const users = [];
+let owner = null;
 
-passport.use(authenticationStrategy);
+const serverPort = process.env.PORT || 3001;
 
 mongoose.Promise = global.Promise;
 
@@ -37,8 +40,34 @@ graphQLServer.use(cors());
 graphQLServer.use(passport.initialize());
 graphQLServer.use(passport.session());
 
-//graphQLServer.use('/graphql', passport.authenticate('oauth-bearer', { session: false }), graphQLHTTP({
-graphQLServer.use('/graphql', graphQLHTTP({
+const findById = (id, fn) => {
+    const user = users.find((user) => { return user.sub === id });
+    if (user) {
+        return fn(null, user);
+    }
+    return fn(null, null);
+}
+
+const authenticationStrategy = new BearerStrategy(options, (token, done) => {
+    findById(token.sub, (err, user) => {
+        if (err) {
+            console.log(err);
+            return done(err);
+        }
+        if (!user) {
+            users.push(token);
+            owner = token.sub;
+            return done(null, token);
+        }
+        owner = token.sub;
+        return done(null, user, token);
+    });
+});
+
+passport.use(authenticationStrategy);
+
+graphQLServer.use('/graphql', passport.authenticate('oauth-bearer', { session: false }), graphQLHTTP({
+    //graphQLServer.use('/graphql', graphQLHTTP({
     schema,
     pretty: true,
     graphiql: true

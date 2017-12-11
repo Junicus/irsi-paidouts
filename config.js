@@ -1,10 +1,10 @@
 require('dotenv').config();
 
-const tenantName = process.env.AZURE_TENANT_NAME;
+const tenantID = process.env.AZURE_TENANT_ID;
 const clientID = process.env.AZURE_CLIENT_ID;
 
 export const credentials = {
-    identityMetadata: `https://login.microsoftonline.com/${tenantName}.onmicrosoft.com/.well-known/openid-configuration`,
+    identityMetadata: `https://login.microsoftonline.com/${tenantID}/.well-known/openid-configuration`,
     clientID
 };
 

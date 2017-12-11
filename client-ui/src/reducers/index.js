@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
-import loginReducer from './loginReducer';
+import resources, { getResources as innerGetResources } from './resources';
 
 export const rootReducer = combineReducers({
-    loginReducer,
-    routing: routerReducer
+    resources,
+    router: routerReducer
 });
+
+export const getResources = state => innerGetResources(state.resources);
