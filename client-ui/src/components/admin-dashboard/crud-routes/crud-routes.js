@@ -13,21 +13,22 @@ const CrudRoute = ({
                 <Route
                     exact
                     path={`/${resource}`}
-                    render={() => (
-                        React.createElement(list)
-                    )} />
+                    render={
+                        (renderProps) => (
+                            React.createElement(list, {
+                                ...renderProps
+                            }))
+                    } />
             )}
             {show && (
                 <Route
                     exact
                     path={`/${resource}/:id/show`}
                     render={
-                        (renderProps) => {
-                            return React.createElement(show,
-                                {
-                                    ...renderProps
-                                });
-                        }
+                        (renderProps) => (
+                            React.createElement(show, {
+                                ...renderProps
+                            }))
                     } />
             )}
         </Switch>

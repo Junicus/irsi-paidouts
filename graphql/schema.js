@@ -1,4 +1,5 @@
 import {
+    GraphQLID,
     GraphQLSchema,
     GraphQLObjectType,
     GraphQLList,
@@ -112,6 +113,15 @@ const userType = new GraphQLObjectType({
             resolve: (user, args) => {
                 console.log(user.id)
                 return connectionFromPromisedArray(database.Stores.getStoresByUser(user.id), args);
+            }
+        },
+        store: {
+            type: storeType,
+            args: {
+                id: { type: new GraphQLNonNull(GraphQLID) }
+            },
+            resolve: (_, { id }) => {
+                return database.Stores.getStore(fromGlobalId(id).id);
             }
         }
     }),

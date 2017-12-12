@@ -10,7 +10,8 @@ import { ConnectedRouter } from 'react-router-redux';
 export const Admin = ({
   dashboard,
   appLayout,
-  children
+  children,
+  isAdmin
 }) => {
   const history = createHistory();
   const store = configureStore(history);
@@ -24,7 +25,8 @@ export const Admin = ({
               render={() => {
                 return React.createElement(appLayout || DefaultLayout, {
                   dashboard,
-                  children
+                  children,
+                  isAdmin
                 });
               }}
             />

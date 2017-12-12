@@ -14,8 +14,10 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import * as AuthenticationContext from 'adal-angular';
 import { adalConfig } from './adal/adal-config';
 
-import MyStoresList from './components/stores/my-store-list';
-import ShowStore from './components/stores/show-store';
+import UserProvider from './containers/users/user-provider';
+
+import ViewerStoresContainer from './containers/stores/viewer-stores-container';
+import ViewerStoreContainer from './containers/stores/viewer-store-container';
 
 let authContext = new AuthenticationContext(adalConfig);
 authContext.handleWindowCallback();
@@ -25,7 +27,6 @@ const httpLink = createHttpLink({
 });
 
 const authLink = setContext((_, { headers }) => {
-
     let authToken = '';
 
     authContext.acquireToken('a492c290-a618-4212-9be3-7ef5d1d978f4', (errDes, token, error) => {
@@ -42,7 +43,6 @@ const authLink = setContext((_, { headers }) => {
 
 const client = new ApolloClient({
     link: authLink.concat(httpLink),
-    //link: httpLink,
     cache: new InMemoryCache(),
 });
 
@@ -52,9 +52,11 @@ if (!authContext.isCallback(window.location.hash)) {
     } else {
         ReactDOM.render(
             <ApolloProvider client={client}>
-                <Admin dashboard={() => <div>Dashboard</div>}>
-                    <Resource name='stores' list={MyStoresList} show={ShowStore} />
-                </Admin>
+                <UserProvider>
+                    <Admin dashboard={() => <div>Dashboard</div>}>
+                        <Resource name='stores' list={ViewerStoresContainer} show={ViewerStoreContainer} />
+                    </Admin>
+                </UserProvider>
             </ApolloProvider>
             , document.getElementById('root'));
         registerServiceWorker();
