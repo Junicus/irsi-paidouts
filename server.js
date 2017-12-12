@@ -66,7 +66,6 @@ const authenticationStrategy = new BearerStrategy(options, (token, done) => {
 passport.use(authenticationStrategy);
 
 graphQLServer.use('/graphql', passport.authenticate('oauth-bearer', { session: false }), graphQLHTTP({
-//graphQLServer.use('/graphql', graphQLHTTP({
     schema,
     pretty: true,
     graphiql: true

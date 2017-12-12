@@ -14,8 +14,8 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import * as AuthenticationContext from 'adal-angular';
 import { adalConfig } from './adal/adal-config';
 
-import InvoiceList from './components/invoice-list';
-import StoreList from './components/store-list';
+import MyStoresList from './components/stores/my-store-list';
+import ShowStore from './components/stores/show-store';
 
 let authContext = new AuthenticationContext(adalConfig);
 authContext.handleWindowCallback();
@@ -53,8 +53,7 @@ if (!authContext.isCallback(window.location.hash)) {
         ReactDOM.render(
             <ApolloProvider client={client}>
                 <Admin dashboard={() => <div>Dashboard</div>}>
-                    <Resource name='invoices' list={InvoiceList} />
-                    <Resource name='stores' list={StoreList} />
+                    <Resource name='stores' list={MyStoresList} show={ShowStore} />
                 </Admin>
             </ApolloProvider>
             , document.getElementById('root'));

@@ -3,7 +3,8 @@ import {
     GraphQLObjectType,
     GraphQLList,
     GraphQLNonNull,
-    GraphQLString
+    GraphQLString,
+    GraphQLBoolean
 } from 'graphql';
 
 import {
@@ -102,6 +103,7 @@ const userType = new GraphQLObjectType({
         id: globalIdField('User'),
         name: { type: new GraphQLNonNull(GraphQLString) },
         email: { type: new GraphQLNonNull(GraphQLString) },
+        isAdmin: { type: new GraphQLNonNull(GraphQLBoolean) },
         stores: {
             type: storesConnection,
             args: {

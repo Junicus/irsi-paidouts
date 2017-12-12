@@ -4,7 +4,6 @@ import { Switch, Route } from 'react-router-dom';
 import { connect } from 'react-redux'
 import { declareResources as declareResourcesAction } from '../../../actions/resourceActions';
 import compose from 'recompose/compose';
-import { Content } from 'antd/lib/layout';
 import CrudRoute from '../crud-routes/crud-routes';
 
 class AdminRoutes extends Component {
@@ -38,7 +37,8 @@ class AdminRoutes extends Component {
                         render={() => (
                             <CrudRoute
                                 resource={resource.name}
-                                list={resource.list} />
+                                list={resource.list}
+                                show={resource.show} />
                         )}
                     />
                 ))}

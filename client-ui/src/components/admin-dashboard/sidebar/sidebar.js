@@ -6,7 +6,6 @@ import Menu from 'antd/lib/menu';
 import Icon from 'antd/lib/icon';
 import { getResources } from '../../../reducers/resources';
 import { Link } from 'react-router-dom';
-import { push } from 'react-router-redux';
 import inflection from 'inflection';
 
 const Sidebar = ({

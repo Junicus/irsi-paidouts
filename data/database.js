@@ -16,7 +16,8 @@ export const Users = {
             let newUser = new tables.User({
                 sub: user.sub,
                 name: user.name,
-                email: user.unique_name
+                email: user.unique_name,
+                isAdmin: false
             });
             newUser.save().then((doc) => resolve(doc), (err) => reject(err));
         });
