@@ -21,6 +21,8 @@ import ViewerStoreContainer from './containers/stores/viewer-store-container';
 import CreatePaidoutsContainer from './containers/paidouts/create-paidouts-container';
 
 import './styles/index.css';
+import './styles/semantic/semantic.min.css';
+
 
 let authContext = new AuthenticationContext(adalConfig);
 authContext.handleWindowCallback();

@@ -1,46 +1,53 @@
 import React from 'react';
-import { Segment, Table } from 'semantic-ui-react';
+import { Header, Segment, Table as SUITable } from 'semantic-ui-react';
 
-const Table = ({ loading = false, columns, datasource }) => {
-  if (!datasource) {
-    return (<div>No data</div>);
+const Table = ({ loading = false, header, columns, data }) => {
+  if (!data || data.length === 0) {
+    return (<Segment loading={loading}><div>No data</div></Segment>);
   }
 
-  if (!columns) {
-    return (<div>No columns</div>);
+  if (!columns || columns.length === 0) {
+    return (<Segment loading={loading}><div>No columns</div></Segment>);
   }
 
-  const headerCells = columns.map((column) => {
-    return (<Table.HeaderCell key={column.title}>{column.title}</Table.HeaderCell>);
-  });
+  const getColumnHeaders = (columns) => {
+    return columns.map((column) => <SUITable.HeaderCell key={column.title}>
+      {column.title}
+    </SUITable.HeaderCell>);
+  }
 
-  const buildCells = (record) => {
-    return columns.map((column) => {
-      if (column.render) {
-        return (<Table.Cell key={`${row.id}-${column.title}`}>
-          {column.render(datasource[column.dataIndex], record)}
-        </Table.Cell>);
-      } else {
-        return (<Table.Cell key={`${row.id}-${column.title}`}>
-          {datasource[column.dataIndex]}
-        </Table.Cell>);
+  const getDataRows = (columns, data) => {
+    const getDataRow = (columns, record) => {
+      const getData = (dataIndex, record) => {
+        return dataIndex.split('.').reduce((a, property) => {
+          return a[property];
+        }, record);
       }
-    });
-  }
 
-  const data = datasource.map((record) => (<Table.Row key={record.id}>{buildCells(record)}</Table.Row>));
+      return columns.map((column) => {
+        if ('render' in column) {
+          return (<SUITable.Cell>{column.render(record[column.dataIndex], record)}</SUITable.Cell>);
+        } else {
+          return (<SUITable.Cell>{getData(column.dataIndex, record)}</SUITable.Cell>);
+        }
+      });
+    }
+
+    return data.map((record) => <SUITable.Row>{getDataRow(columns, record)}</SUITable.Row>);
+  }
 
   return (
-    <Segment as={Table}>
-      <Table.Header>
-        <Table.Row>
-          {headerCells}
-        </Table.Row>
-      </Table.Header>
-      <Table.Body>
-        {data}
-      </Table.Body>
-    </Segment>
+    <div>
+      {header && <Header attached='top' as='h3'>{header()}</Header>}
+      <Segment attached={!!header} loading={loading} as={SUITable} >
+        <SUITable.Header>
+          {getColumnHeaders(columns)}
+        </SUITable.Header>
+        <SUITable.Body>
+          {getDataRows(columns, data)}
+        </SUITable.Body>
+      </Segment>
+    </div >
   );
 }
 
