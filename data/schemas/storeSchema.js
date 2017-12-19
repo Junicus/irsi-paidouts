@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { InvoiceSchema } from './invoiceSchema';
+import { PaidOutSchema } from './paidoutSchema';
 
 mongoose.Promise = global.Promise;
 export const StoreSchema = mongoose.Schema({
     name: String,
-    invoices: [InvoiceSchema]
+    paidouts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'paidout' }]
 });

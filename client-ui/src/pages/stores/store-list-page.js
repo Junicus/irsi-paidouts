@@ -1,15 +1,16 @@
 import React from 'react'
-import { Content } from 'antd/lib/layout';
+import { Container, Segment, Header } from 'semantic-ui-react';
 import Loader from '../../components/loader/loader';
 import StoreList from '../../components/stores/store-list';
 
 const StoreListPage = ({ loading, error, stores }) => {
     return (
-        <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280 }}>
-            {loading ? <Loader spinning /> : ''}
-            {!stores && <div>No Stores</div>}
-            {stores && <StoreList stores={stores} />}
-        </Content>
+        <Container style={{ marginTop: '1em' }}>
+            <Header as='h1' attached='top'>My Stores</Header>
+            <Segment attached>
+                {stores ? <StoreList loading={loading} stores={stores} /> : ''}
+            </Segment>
+        </Container>
     );
 }
 

@@ -5,7 +5,8 @@ import { Switch, Route } from 'react-router-dom';
 const CrudRoute = ({
     resource,
     list,
-    show
+    show,
+    create
 }) => {
     return (
         <Switch>
@@ -27,6 +28,17 @@ const CrudRoute = ({
                     render={
                         (renderProps) => (
                             React.createElement(show, {
+                                ...renderProps
+                            }))
+                    } />
+            )}
+            {create && (
+                <Route
+                    exact
+                    path={`/${resource}/create`}
+                    render={
+                        (renderProps) => (
+                            React.createElement(create, {
                                 ...renderProps
                             }))
                     } />

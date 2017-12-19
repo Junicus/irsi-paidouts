@@ -11,6 +11,13 @@ const VIEWER_STORE_QUERY = gql`
             store(id: $id) {
                 id
                 name
+                paidouts {
+                    edges {
+                        node {
+                            id
+                        }
+                    }
+                }
             }
         }
     }
@@ -19,11 +26,7 @@ const VIEWER_STORE_QUERY = gql`
 class ViewerStoreContainer extends Component {
     render() {
         const { loading, error, viewer } = this.props.data;
-
-        let store = {};
-        if (viewer) {
-            store = viewer.store;
-        }
+        const store = viewer ? viewer.store : {};
 
         return (
             <StoreShowPage loading={loading} error={error} store={store} />

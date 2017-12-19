@@ -38,7 +38,8 @@ class AdminRoutes extends Component {
                             <CrudRoute
                                 resource={resource.name}
                                 list={resource.list}
-                                show={resource.show} />
+                                show={resource.show}
+                                create={resource.create} />
                         )}
                     />
                 ))}

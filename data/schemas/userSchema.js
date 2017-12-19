@@ -7,8 +7,5 @@ export const UserSchema = mongoose.Schema({
     name: String,
     email: String,
     isAdmin: Boolean,
-    stores: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'store'
-    }]
+    stores: [{ type: mongoose.Schema.Types.ObjectId, ref: 'store' }]
 });
