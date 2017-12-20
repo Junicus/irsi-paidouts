@@ -8,6 +8,7 @@ import { Button, Welcome } from '@storybook/react/demo';
 
 import Table from '../components/lists/table';
 import ListHeader from '../components/lists/list-header';
+import Link from '../components/link/link';
 
 import '../styles/semantic/semantic.min.css';
 
@@ -47,8 +48,9 @@ const header = () => {
 
 const headerWithRightCommands = () => {
   const rightCommands = [{
+    url: '/test',
     label: 'Create',
-    url: '/test'
+    icon: 'add'
   }];
 
   return (<ListHeader title='Paid Outs' rightCommands={rightCommands} />);
@@ -60,3 +62,13 @@ storiesOf('Table', module)
   .add('data and columns', () => <Table columns={testColumns} data={testData} />)
   .add('with header', () => <Table columns={testColumns} data={testData} header={header} />)
   .add('with header and commands', () => <Table columns={testColumns} data={testData} header={headerWithRightCommands} />)
+
+const linkData = {
+  url: '#',
+  label: 'Test',
+  icon: 'add'
+}
+
+storiesOf('Link', module)
+  .add('basic', () => <Link url='#' label='Test' />)
+  .add('with icon', () => <Link {...linkData} />)

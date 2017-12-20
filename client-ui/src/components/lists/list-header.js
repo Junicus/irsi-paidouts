@@ -1,23 +1,33 @@
 import React from 'react';
 import { Header, Segment, Table as SUITable } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
+import Link from '../link/link';
 
 const ListHeader = ({ title, rightCommands }) => {
-  console.log(rightCommands);
   const renderRightCommands = (commands) => {
+    console.log(commands);
     return commands.map((command) => {
-      return (<a key={command.label} href={command.url}>{command.label}</a>);
+      return (<div key={command.url}><Link {...command} /></div>);
     });
   };
 
+  const styles = {
+    outerBox: {
+      display: 'flex',
+      justifyContent: 'space-between'
+    }
+  }
+
   return (
-    <div style={{ display: 'flex' }}>
+    <div style={styles.outerBox}>
       <div>
         {title}
       </div>
-      <div>
-        {rightCommands && <div>{renderRightCommands(rightCommands)}</div>}
-      </div>
+      {
+        rightCommands &&
+        <div>
+          {renderRightCommands(rightCommands)}
+        </div>
+      }
     </div>
   );
 }
