@@ -4,7 +4,6 @@ import Link from '../link/link';
 
 const ListHeader = ({ title, rightCommands }) => {
   const renderRightCommands = (commands) => {
-    console.log(commands);
     return commands.map((command) => {
       return (<div key={command.url}><Link {...command} /></div>);
     });

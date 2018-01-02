@@ -20,7 +20,7 @@ const UserProvider = ({ children, data }) => {
         return <Loader spinning />
     }
 
-    const { isAdmin } = viewer;
+    const { isAdmin } = viewer ? viewer.isAdmin : false;
 
     return (
         <div>

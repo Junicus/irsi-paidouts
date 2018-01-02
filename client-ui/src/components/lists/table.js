@@ -3,11 +3,20 @@ import { Header, Segment, Table as SUITable } from 'semantic-ui-react';
 
 const Table = ({ loading = false, header, columns, data }) => {
   if (!data || data.length === 0) {
-    return (<Segment loading={loading}><div>No data</div></Segment>);
+    return (
+      <div>
+        {header && <Header attached='top' as='h3'>{header()}</Header>}
+        <Segment attached loading={loading}><div>No data</div></Segment>
+      </div>
+    );
   }
 
   if (!columns || columns.length === 0) {
-    return (<Segment loading={loading}><div>No columns</div></Segment>);
+    return (
+      <div>
+        {header && <Header attached='top' as='h3'>{header()}</Header>}
+        <Segment attached loading={loading}><div>No columns</div></Segment>
+      </div>);
   }
 
   const getColumnHeaders = (columns) => {
@@ -26,14 +35,14 @@ const Table = ({ loading = false, header, columns, data }) => {
 
       return columns.map((column) => {
         if ('render' in column) {
-          return (<SUITable.Cell>{column.render(record[column.dataIndex], record)}</SUITable.Cell>);
+          return (<SUITable.Cell key={`${record.id}-${column.dataIndex}`}>{column.render(record[column.dataIndex], record)}</SUITable.Cell>);
         } else {
-          return (<SUITable.Cell>{getData(column.dataIndex, record)}</SUITable.Cell>);
+          return (<SUITable.Cell key={`${record.id}-${column.dataIndex}`}>{getData(column.dataIndex, record)}</SUITable.Cell>);
         }
       });
     }
 
-    return data.map((record) => <SUITable.Row>{getDataRow(columns, record)}</SUITable.Row>);
+    return data.map((record) => <SUITable.Row key={`${record.id}`}>{getDataRow(columns, record)}</SUITable.Row>);
   }
 
   return (
@@ -41,7 +50,9 @@ const Table = ({ loading = false, header, columns, data }) => {
       {header && <Header attached='top' as='h3'>{header()}</Header>}
       <Segment attached={!!header} loading={loading} as={SUITable} >
         <SUITable.Header>
-          {getColumnHeaders(columns)}
+          <SUITable.Row>
+            {getColumnHeaders(columns)}
+          </SUITable.Row>
         </SUITable.Header>
         <SUITable.Body>
           {getDataRows(columns, data)}

@@ -2,6 +2,10 @@ import React from 'react'
 import queryString from 'querystring';
 import { Segment, Message, Container, Header, Menu, Icon } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import Table from '../../components/lists/table';
+import ListHeader from '../../components/lists/list-header';
+import DateRangeSelector from '../../components/datepickers/dateRangeSelector';
+
 import PaidOutList from '../../components/paidouts/paidout-list';
 
 const StoreShowPage = ({ loading, error, store }) => {
@@ -9,6 +13,7 @@ const StoreShowPage = ({ loading, error, store }) => {
     const { edges } = store;
     console.log(edges);
 
+    const columns = [];
     const paidouts = [];
 
     if (error) {
@@ -26,10 +31,19 @@ const StoreShowPage = ({ loading, error, store }) => {
     }
     return (
         <Container style={{ marginTop: '1em' }}>
-            <Header as='h1' attached='top'>
+            <Header as='h1'>
                 {store.name}
             </Header>
-            <Segment attached>
+            <DateRangeSelector />
+            <Table columns={columns} data={paidouts}
+                header={() => (<ListHeader title='Paid Outs' rightCommands={
+                    [{
+                        label: 'Create',
+                        url: '/paidout/create',
+                        icon: 'add'
+                    }]
+                } />)} />
+            {/*             <Segment attached>
                 <Menu attached='top' borderless>
                     <Menu.Item header>Paid Outs</Menu.Item>
                     <Menu.Item position='right'>
@@ -41,7 +55,7 @@ const StoreShowPage = ({ loading, error, store }) => {
                 </Menu>
                 {paidouts ? <PaidOutList paidouts={paidouts} /> : <div>No data</div>}
             </Segment>
-        </Container>
+ */}        </Container>
     );
 }
 

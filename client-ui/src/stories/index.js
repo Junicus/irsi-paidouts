@@ -4,19 +4,18 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 
-import { Button, Welcome } from '@storybook/react/demo';
-
 import Table from '../components/lists/table';
 import ListHeader from '../components/lists/list-header';
 import Link from '../components/link/link';
+import DateRangeSelector from '../components/datepickers/dateRangeSelector';
 
 import '../styles/semantic/semantic.min.css';
 
-storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
+// storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
 
-storiesOf('Button', module)
-  .add('with text', () => <Button onClick={action('clicked')}>Hello Button</Button>)
-  .add('with some emoji', () => <Button onClick={action('clicked')}>😀 😎 👍 💯</Button>);
+// storiesOf('Button', module)
+//   .add('with text', () => <Button onClick={action('clicked')}>Hello Button</Button>)
+//   .add('with some emoji', () => <Button onClick={action('clicked')}>😀 😎 👍 💯</Button>);
 
 const testColumns = [{
   dataIndex: 'createdAt',
@@ -60,6 +59,7 @@ storiesOf('Table', module)
   .add('no data', () => <Table />)
   .add('no columns', () => <Table data={testData} />)
   .add('data and columns', () => <Table columns={testColumns} data={testData} />)
+  .add('no data with header', () => <Table header={headerWithRightCommands} />)
   .add('with header', () => <Table columns={testColumns} data={testData} header={header} />)
   .add('with header and commands', () => <Table columns={testColumns} data={testData} header={headerWithRightCommands} />)
 
@@ -72,3 +72,20 @@ const linkData = {
 storiesOf('Link', module)
   .add('basic', () => <Link url='#' label='Test' />)
   .add('with icon', () => <Link {...linkData} />)
+
+const dateRangeSelectorData = {
+  leftLabel: 'Left Date',
+  rightLabel: 'Right Date',
+}
+
+storiesOf('DateRangeSelector', module)
+  .add('default', () => <DateRangeSelector />)
+  .add('with data', () => <DateRangeSelector {...dateRangeSelectorData} />)
+  .add('with values', () => <DateRangeSelector {...dateRangeSelectorData}
+    leftValue={new Date().toISOString()}
+    rightValue={new Date().toISOString()}
+  />)
+  .add('with event', () => <DateRangeSelector {...dateRangeSelectorData} onChange={(e, data) => {
+    console.log(data);
+    action('data-changed');
+  }} />)

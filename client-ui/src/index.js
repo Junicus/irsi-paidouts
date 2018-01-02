@@ -15,14 +15,12 @@ import { adalConfig } from './adal/adal-config';
 
 import UserProvider from './containers/users/user-provider';
 
-import ViewerStoresContainer from './containers/stores/viewer-stores-container';
-import ViewerStoreContainer from './containers/stores/viewer-store-container';
-
-import CreatePaidoutsContainer from './containers/paidouts/create-paidouts-container';
+import ListStoresView from './views/ListStoresView';
+import ShowStoreView from './views/ShowStoreView';
+import CreatePaidOutView from './views/CreatePaidOutView';
 
 import './styles/index.css';
 import './styles/semantic/semantic.min.css';
-
 
 let authContext = new AuthenticationContext(adalConfig);
 authContext.handleWindowCallback();
@@ -59,8 +57,8 @@ if (!authContext.isCallback(window.location.hash)) {
       <ApolloProvider client={client}>
         <UserProvider>
           <Admin dashboard={() => <div>Dashboard</div>}>
-            <Resource name='stores' list={ViewerStoresContainer} show={ViewerStoreContainer} />
-            <Resource name='paidout' create={CreatePaidoutsContainer} />            
+            <Resource name='stores' list={ListStoresView} show={ShowStoreView} />
+            <Resource name='paidout' create={CreatePaidOutView} />
           </Admin>
         </UserProvider>
       </ApolloProvider>

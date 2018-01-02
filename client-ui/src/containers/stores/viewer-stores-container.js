@@ -20,21 +20,10 @@ const VIEWER_STORES_QUERY = gql`
     }
 `;
 
-class ViewerStoresContainer extends Component {
-    render() {
-        const { loading, error, viewer } = this.props.data;
-        let stores = [];
-        if (viewer) {
-            stores = viewer.stores.edges.map(edge => ({
-                ...edge.node,
-                key: edge.node.id
-            }));
-        }
+const ViewerStoresContainer = ({ data, render }) => {
+    const { loading, error, viewer } = data;
 
-        return (
-            <StoreListPage loading={loading} error={error} stores={stores} />
-        );
-    }
+    return (render(loading, error, viewer));
 }
 
 export default graphql(VIEWER_STORES_QUERY)(ViewerStoresContainer);
