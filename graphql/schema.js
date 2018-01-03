@@ -245,8 +245,7 @@ const Mutation = new GraphQLObjectType({
           details: newDetail
         };
 
-        const data = database.PaidOuts.createPaidOut(payload, ctx).then((doc) => doc);
-        return data;
+        return database.PaidOuts.createPaidOut(payload, ctx).then((doc) => doc);
       }
     }
   }),
