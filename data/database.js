@@ -1,4 +1,5 @@
 import * as tables from './tables';
+import mongoose from 'mongoose';
 
 export const Users = {
   getUser: (id) => {
@@ -76,14 +77,32 @@ export const PaidOuts = {
   },
   createPaidOut: (args, ctx) => {
     return new Promise((resolve, reject) => {
-      const { storeId, vendorId, detail } = args;
-      let paidout = new tables.invoice({
-        storeId,
-        created_at: Date.now(),
-        vendor: vendorId,
-        detail
+      const { storeId, created_at, vendorId, details } = args;
+      console.log(details);
+      let paidout = new tables.PaidOut({
+        store: mongoose.Types.ObjectId(storeId),
+        created_at: created_at,
+        vendor: mongoose.Types.ObjectId(vendorId),
+        details: details.map((d) => ({
+          account: mongoose.Types.ObjectId(d.accountId),
+          amount: d.amount
+        }))
       });
-      paidout.save().then((doc) => resolve(doc), (err) => reject(err));
+      paidout.save()
+        .then((doc) => tables.Vendor.populate(doc, { path: 'vendor', model: 'vendor' }))
+        .then((doc) => tables.Store.populate(doc, { path: 'store', model: 'store' }))
+        .then((doc) => {
+          return Promise.all(doc.details.map((detail) => tables.Account.populate(detail, { path: 'account', model: 'account' }))).then((values) =>  {
+            console.log(values);
+            console.log(doc);
+            return doc;
+          });
+        })
+        .then((doc) => {
+          console.log(doc);
+          resolve(doc);
+        })
+        .catch(err => reject(err));
     });
   }
 };

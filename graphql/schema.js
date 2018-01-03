@@ -6,7 +6,8 @@ import {
   GraphQLNonNull,
   GraphQLString,
   GraphQLBoolean,
-  GraphQLFloat
+  GraphQLFloat,
+  GraphQLInputObjectType
 } from 'graphql';
 
 import {
@@ -19,7 +20,8 @@ import {
   globalIdField,
   connectionDefinitions,
   connectionArgs,
-  connectionFromPromisedArray
+  connectionFromPromisedArray,
+  connectionFromArray
 } from 'graphql-relay';
 
 import * as database from '../data/database';
@@ -178,17 +180,10 @@ const paidoutType = new GraphQLObjectType({
   name: 'PaidOut',
   fields: () => ({
     id: globalIdField('PaidOut'),
-    storeId: { type: GraphQLString },
+    store: { type: storeType },
     created_at: { type: GraphQLDate },
     vendor: { type: vendorType },
-    detail: {
-      type: paidoutsDetailConnection,
-      args: {
-        ...connectionArgs,
-      },
-      resolve: () => (paidOut, { ...args }) =>
-        connectionFromPromisedArray(new Promise((resolve, _) => (resolve([]))), args)
-    }
+    details: { type: GraphQLList(paidoutDetailType) }
   }),
   interfaces: [nodeInterface]
 });
@@ -197,8 +192,8 @@ const paidoutDetailType = new GraphQLObjectType({
   name: 'PaidOutDetail',
   fields: () => ({
     id: globalIdField('PaidOutDetail'),
-    accountId: {type: GraphQLString},
-    amount: {type: GraphQLFloat}
+    account: { type: accountType },
+    amount: { type: GraphQLFloat }
   }),
   interfaces: [nodeInterface]
 });
@@ -207,6 +202,57 @@ const { connectionType: paidoutsConnection, edgeType: paidoutsEdge } = connectio
 const { connectionType: paidoutsDetailConnection, edgeType: paidoutsDetailEdge } = connectionDefinitions({ name: 'PaidOutsDtail', nodeType: paidoutDetailType });
 const { connectionType: storesConnection, edgeType: storesEdge } = connectionDefinitions({ name: 'Stores', nodeType: storeType });
 
+const createPaidOutDetailInputType = new GraphQLInputObjectType({
+  name: 'CreatePaidOutDetailInput',
+  fields: () => ({
+    accountId: { type: new GraphQLNonNull(GraphQLString) },
+    amount: { type: new GraphQLNonNull(GraphQLFloat) }
+  })
+});
+
+const createPaidOutInputType = new GraphQLInputObjectType({
+  name: 'CreatePaidOutInput',
+  fields: () => ({
+    storeId: { type: new GraphQLNonNull(GraphQLString) },
+    created_at: { type: new GraphQLNonNull(GraphQLDate) },
+    vendorId: { type: new GraphQLNonNull(GraphQLID) },
+    details: { type: new GraphQLList(createPaidOutDetailInputType) }
+  })
+});
+
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: () => ({
+    createPaidOut: {
+      type: paidoutType,
+      args: {
+        input: { type: new GraphQLNonNull(createPaidOutInputType) },
+      },
+      resolve: (mutation, { input, ...args }, ctx) => {
+        const { storeId, vendorId, details } = input;
+        const newStoreId = fromGlobalId(storeId).id;
+        const newVendorId = fromGlobalId(vendorId).id;
+
+        const newDetail = details.map((d) => ({
+          accountId: fromGlobalId(d.accountId).id,
+          amount: `${d.amount}`,
+        }));
+
+        const payload = {
+          ...input,
+          storeId: newStoreId,
+          vendorId: newVendorId,
+          details: newDetail
+        };
+
+        const data = database.PaidOuts.createPaidOut(payload, ctx).then((doc) => doc);
+        return data;
+      }
+    }
+  }),
+});
+
 export const schema = new GraphQLSchema({
   query: Query,
+  mutation: Mutation
 });
