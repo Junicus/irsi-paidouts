@@ -24,8 +24,7 @@ class CreatePaidOutView extends Component {
       refetchQueries: [{ query: STORE_PAIDOUTS_QUERY }]
     });
 
-    push(`/stores/${query.storeId}/show?storeId=${query.storeId}`);
-
+    push(`/stores/${query.storeId}/show${location.search}`);
   }
 
   render() {

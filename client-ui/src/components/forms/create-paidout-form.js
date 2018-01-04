@@ -1,57 +1,71 @@
 import React, { Component } from 'react'
 import { Header, Segment, Table as SUITable, Form, Button } from 'semantic-ui-react';
 import moment from 'moment';
+import DetailsSubform from './create-paidout-details-subform';
+import FormUtils from './form-utils';
 import Table from '../lists/table';
+import { run, ruleRunner } from '../validation/ruleRunner';
+import { required, mustContainSomething } from '../validation/rules';
+
+const fieldValidations = [
+  ruleRunner('vendorId', 'Vendor', required),
+  ruleRunner('details', 'Details', mustContainSomething)
+];
 
 class CreatePaidoutForm extends Component {
   state = {
-    createdAt: moment().startOf('day').toISOString().substr(0, 10),
-    vendor: { id: null },
+    created_at: moment().startOf('day').toISOString().substr(0, 10),
     storeId: this.props.storeId,
     storeName: this.props.storeName,
+    vendorId: null,
     details: [],
-    newAccount: null,
-    newAmount: ''
+    showErrors: false,
+    validationErrors: {}
   }
 
   onSubmit = (e) => {
     e.preventDefault();
-    //TODO: do some data verification?
+    this.setState({ showErrors: true });
+    if ((Object.keys(this.state.validationErrors).length === 0 && this.state.validationErrors.constructor === Object) === false) {
+      console.log('validation error');
+      return null;
+    }
     const { onSubmit } = this.props;
     const formData = {
-      created_at: this.state.createdAt,
-      vendorId: this.state.vendor.id,
+      created_at: this.state.created_at,
+      vendorId: this.state.vendorId,
       storeId: this.state.storeId,
       details: this.state.details.map((detail) => ({ accountId: detail.accountId, amount: detail.amount }))
     };
     onSubmit(e, formData);
   }
 
-  onVendorChange = (e, { name, value }) => {
-    this.setState({
-      vendor: { id: value }
-    });
-  }
-
-  onChange = (e, { name, value }) => {
-    this.setState({
+  handleChange = (e, { name, value }) => {
+    let newState = {
+      ...this.state,
       [name]: value
-    });
+    };
+    newState.validationErrors = run(newState, fieldValidations);
+    this.setState(newState);
   }
 
-  onAddDetail = (e) => {
-    e.preventDefault();
-    const { newAccount, details } = this.state;
-    const { accounts } = this.props;
-    const selectedAccount = accounts.find((account) => {
-      return account.id === newAccount;
-    });
-    details.push({ accountId: selectedAccount.id, accountName: selectedAccount.name, amount: this.state.newAmount });
-    this.setState({
-      details,
-      newAccount: null,
-      newAmount: ''
-    });
+  handleAddDetail = (detail) => {
+    const { details } = this.state;
+    details.push(detail);
+    let newState = {
+      ...this.state,
+      details
+    };
+    newState.validationErrors = run(newState, fieldValidations);
+    this.setState(newState);
+  }
+
+  componentWillMount() {
+    this.setState({ validationErrors: run(this.state, fieldValidations) });
+  }
+
+  errorFor(field) {
+    return this.state.validationErrors[field] || "";
   }
 
   render() {
@@ -60,11 +74,6 @@ class CreatePaidoutForm extends Component {
       key: vendor.id,
       text: vendor.name,
       value: vendor.id
-    })) : [];
-    const accountOptions = !loading ? accounts.map((account) => ({
-      key: account.id,
-      text: account.name,
-      value: account.id
     })) : [];
     const detailColumns = [{
       dataIndex: 'accountName',
@@ -76,30 +85,20 @@ class CreatePaidoutForm extends Component {
 
     return (
       <Segment as={Form} loading={loading} onSubmit={this.onSubmit}>
-        <Form.Field>
-          <label>Business Date</label>
-          <Form.Input name='createdAt' type='date' value={this.state.createdAt} onChange={this.onChange} />
-        </Form.Field>
-        <Form.Field>
-          <label>Store</label>
-          <Form.Input value={this.state.storeName} readOnly />
-        </Form.Field>
-        <Form.Field>
-          <label>Vendor</label>
-          <Form.Select name='vendor' placeholder='Select vendor...' options={vendorOptions} onChange={this.onVendorChange} />
-        </Form.Field>
+        <Form.Group>
+          <FormUtils.Input name='created_at' label='Date' type='date' value={this.state.created_at} onChange={this.handleChange} />
+          <FormUtils.Input label='Store' value={this.state.storeName} readOnly />
+        </Form.Group>
+        <FormUtils.Select name='vendorId' label='Vendor' placeholder='Select vendor...' options={vendorOptions} onChange={this.handleChange}
+          showErrors={this.state.showErrors} errorText={this.errorFor('vendorId')} />
         <Segment>
-          <Form.Group inline>
-            <Form.Select name='newAccount' label='Account' value={this.state.newAccount}
-              options={accountOptions} placeholder='Select account...'
-              onChange={this.onChange} />
-            <Form.Input name='newAmount' label='Amount' value={this.state.newAmount} placeholder='0.00'
-              onChange={this.onChange} />
-            <Form.Field control={Button} content='Add' onClick={this.onAddDetail} />
-          </Form.Group>
+          <DetailsSubform accounts={accounts} onAdd={this.handleAddDetail} />
           <Table columns={detailColumns} data={this.state.details} />
         </Segment>
         <Form.Field control={Button}>Submit</Form.Field>
+        {
+          JSON.stringify(this.state)
+        }
       </Segment>
     );
   }
