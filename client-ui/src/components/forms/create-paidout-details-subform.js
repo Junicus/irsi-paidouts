@@ -9,6 +9,16 @@ const fieldValidations = [
   ruleRunner('amount', 'Amount', required)
 ];
 
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
 class DetailsSubform extends Component {
   state = {
     account: '',
@@ -35,7 +45,7 @@ class DetailsSubform extends Component {
     }
     const { accounts, onAdd } = this.props;
     const selectedAccount = accounts.find((account) => account.id === this.state.account);
-    const detail = { accountId: selectedAccount.id, accountName: selectedAccount.name, amount: this.state.amount };
+    const detail = { id: guid(), accountId: selectedAccount.id, accountName: selectedAccount.name, amount: this.state.amount };
     onAdd(detail);
     let newState = {
       account: '',

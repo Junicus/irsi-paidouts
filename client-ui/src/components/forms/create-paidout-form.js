@@ -96,9 +96,6 @@ class CreatePaidoutForm extends Component {
           <Table columns={detailColumns} data={this.state.details} />
         </Segment>
         <Form.Field control={Button}>Submit</Form.Field>
-        {
-          JSON.stringify(this.state)
-        }
       </Segment>
     );
   }
