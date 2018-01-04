@@ -160,7 +160,7 @@ const storeType = new GraphQLObjectType({
         ...connectionArgs,
       },
       resolve: (store, { ...args }) =>
-        connectionFromPromisedArray(database.PaidOuts.getPaidOutsByStore(fromGlobalId(store.id).id), args)
+        connectionFromPromisedArray(database.PaidOuts.getPaidOutsByStore(store.id), args)
     },
     paidoutsByDate: {
       type: paidoutsConnection,
@@ -170,7 +170,7 @@ const storeType = new GraphQLObjectType({
         ...connectionArgs,
       },
       resolve: (store, { startDate, endDate, ...args }) =>
-        connectionFromPromisedArray(database.PaidOuts.getPaidOutsByStoreByRange(fromGlobalId(store.id).id, startDate, endDate), args)
+        connectionFromPromisedArray(database.PaidOuts.getPaidOutsByStoreByRange(store.id, startDate, endDate), args)
     }
   }),
   interfaces: [nodeInterface]
@@ -183,7 +183,13 @@ const paidoutType = new GraphQLObjectType({
     store: { type: storeType },
     created_at: { type: GraphQLDate },
     vendor: { type: vendorType },
-    details: { type: GraphQLList(paidoutDetailType) }
+    details: { type: GraphQLList(paidoutDetailType) },
+    total: {
+      type: GraphQLFloat,
+      resolve: (paidOut, args, ctx) => {
+        return paidOut.details.reduce((a, detail) => a + detail.amount, 0);
+      }
+    }
   }),
   interfaces: [nodeInterface]
 });

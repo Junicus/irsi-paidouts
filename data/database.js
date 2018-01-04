@@ -65,14 +65,22 @@ export const PaidOuts = {
       tables.PaidOut.find({}).then((docs) => resolve(docs), (err) => reject(err));
     });
   },
-  getPaidOutsByStore: (storeId) => {
+  getPaidOutsByStore: (store) => {
     return new Promise((resolve, reject) => {
-      tables.PaidOut.find({ storeId }).then((docs) => resolve(docs), (err) => reject(err));
+      tables.PaidOut.find({ store })
+        .populate('vendor')
+        .populate('store')
+        .then(docs => resolve(docs))
+        .catch(err => reject(err));
     });
   },
-  getPaidOutsByStoreByRange: (storeId, startDate, endDate) => {
+  getPaidOutsByStoreByRange: (store, startDate, endDate) => {
     return new Promise((resolve, reject) => {
-      tables.PaidOut.find({ storeId }).then((docs) => resolve(docs), (err) => reject(err));
+      tables.PaidOut.find({ store, created_at: { "$gte": startDate, "$lte": endDate } })
+        .populate('vendor')
+        .populate('store')
+        .then(docs => resolve(docs))
+        .catch(err => reject(err));
     });
   },
   createPaidOut: (args, ctx) => {
@@ -92,16 +100,11 @@ export const PaidOuts = {
         .then((doc) => tables.Vendor.populate(doc, { path: 'vendor', model: 'vendor' }))
         .then((doc) => tables.Store.populate(doc, { path: 'store', model: 'store' }))
         .then((doc) => {
-          return Promise.all(doc.details.map((detail) => tables.Account.populate(detail, { path: 'account', model: 'account' }))).then((values) =>  {
-            console.log(values);
-            console.log(doc);
-            return doc;
-          });
+          return Promise.all(doc.details.map((detail) => tables.Account.populate(detail, { path: 'account', model: 'account' })))
+            .then((values) => doc)
+            .catch(err => reject(err));
         })
-        .then((doc) => {
-          console.log(doc);
-          resolve(doc);
-        })
+        .then((doc) => resolve(doc))
         .catch(err => reject(err));
     });
   }

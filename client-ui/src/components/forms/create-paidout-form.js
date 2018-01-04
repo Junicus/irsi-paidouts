@@ -1,28 +1,30 @@
 import React, { Component } from 'react'
 import { Header, Segment, Table as SUITable, Form, Button } from 'semantic-ui-react';
+import moment from 'moment';
 import Table from '../lists/table';
 
 class CreatePaidoutForm extends Component {
   state = {
-    createdAt: new Date().toISOString().substr(0, 10),
+    createdAt: moment().startOf('day').toISOString().substr(0, 10),
     vendor: { id: null },
     storeId: this.props.storeId,
     storeName: this.props.storeName,
-    detail: [],
+    details: [],
     newAccount: null,
     newAmount: ''
   }
 
   onSubmit = (e) => {
     e.preventDefault();
+    //TODO: do some data verification?
     const { onSubmit } = this.props;
     const formData = {
-      createdAt: this.state.createdAt,
+      created_at: this.state.createdAt,
       vendorId: this.state.vendor.id,
       storeId: this.state.storeId,
-      detail: this.state.detail
+      details: this.state.details.map((detail) => ({ accountId: detail.accountId, amount: detail.amount }))
     };
-    onSubmit(formData);
+    onSubmit(e, formData);
   }
 
   onVendorChange = (e, { name, value }) => {
@@ -39,12 +41,14 @@ class CreatePaidoutForm extends Component {
 
   onAddDetail = (e) => {
     e.preventDefault();
-    const { detail } = this.state;
+    const { newAccount, details } = this.state;
     const { accounts } = this.props;
-    const account = accounts.find((account) => account.Id === detail.newAccount);
-    detail.push({ accountId: this.state.newAccount, accountName: account.name, amount: this.state.newAmount });
+    const selectedAccount = accounts.find((account) => {
+      return account.id === newAccount;
+    });
+    details.push({ accountId: selectedAccount.id, accountName: selectedAccount.name, amount: this.state.newAmount });
     this.setState({
-      detail,
+      details,
       newAccount: null,
       newAmount: ''
     });
@@ -93,7 +97,7 @@ class CreatePaidoutForm extends Component {
               onChange={this.onChange} />
             <Form.Field control={Button} content='Add' onClick={this.onAddDetail} />
           </Form.Group>
-          <Table columns={detailColumns} data={this.state.detail} />
+          <Table columns={detailColumns} data={this.state.details} />
         </Segment>
         <Form.Field control={Button}>Submit</Form.Field>
       </Segment>

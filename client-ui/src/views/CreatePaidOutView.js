@@ -4,6 +4,8 @@ import queryString from 'querystring';
 import CreatePaidOutContainer from '../containers/paidouts/create-paidout-container';
 import CreatePaidOutForm from '../components/forms/create-paidout-form';
 
+import STORE_PAIDOUTS_QUERY from '../containers/stores/store-paidouts-container';
+
 class CreatePaidOutView extends Component {
   state = {
     createdAt: new Date().toISOString().substr(0, 10),
@@ -13,13 +15,20 @@ class CreatePaidOutView extends Component {
     detail: []
   }
 
-  onSubmit = (data) => {
-    const { history: push } = this.props;
-    console.log(data);
+  onSubmit = (data, mutate) => {
+    const { location, history: { push } } = this.props;
+    const query = queryString.parse(location.search.slice(1));
+
+    mutate({
+      variables: { input: data },
+      refetchQueries: [{ query: STORE_PAIDOUTS_QUERY }]
+    });
+
+    push(`/stores/${query.storeId}/show?storeId=${query.storeId}`);
+
   }
 
   render() {
-    console.log(this.props);
     const { location } = this.props;
     const query = queryString.parse(location.search.slice(1));
 
@@ -29,8 +38,7 @@ class CreatePaidOutView extends Component {
         <Segment attached>
           <CreatePaidOutContainer render={
             (loading, error, accounts, vendors, mutate) => {
-              console.log(loading, error, accounts, vendors);
-              const localOnSubmit = (e, data) => this.onSubmit(e, data, mutate);
+              const localOnSubmit = (e, data) => this.onSubmit(data, mutate);
               return (<CreatePaidOutForm loading={loading}
                 value={this.state}
                 storeId={query.storeId}

@@ -2,15 +2,21 @@ import React, { Component } from 'react'
 import gql from 'graphql-tag';
 import graphql from 'react-apollo/graphql';
 
-const STORE_PAIDOUTS_QUERY = gql`
-    query StorePaidOutsQuery($id: ID!) {
+export const STORE_PAIDOUTS_QUERY = gql`
+    query StorePaidOutsQuery($id: ID!, $startDate: Date!, $endDate: Date!) {
       node(id: $id) {
         id
         ... on Store {
-          paidouts {
+          paidoutsByDate(startDate: $startDate, endDate: $endDate) {
             edges {
               node {
                 id
+                created_at
+                vendor {
+                  id
+                  name
+                }
+                total
               }
             }
           }

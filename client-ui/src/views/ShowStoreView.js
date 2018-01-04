@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Container, Segment, Header } from 'semantic-ui-react';
+import moment from 'moment';
 import queryString from 'querystring';
 import DateRangeSelector from '../components/datepickers/dateRangeSelector';
 import StorePaidOutsContainer from '../containers/stores/store-paidouts-container';
@@ -9,8 +10,8 @@ import ListHeader from '../components/lists/list-header';
 class ShowStoreView extends Component {
   state = {
     filter: {
-      startDate: new Date().toISOString().substr(0, 10),
-      endDate: new Date().toISOString().substr(0, 10)
+      startDate: moment().add(-7, 'day').startOf('day').toISOString().substr(0,10),
+      endDate: moment().startOf('day').toISOString().substr(0,10)
     }
   }
 
@@ -26,6 +27,7 @@ class ShowStoreView extends Component {
   render() {
     const { location } = this.props;
     const query = queryString.parse(location.search.slice(1));
+    console.log(this.state.filter);
     return (
       <Container style={{ marginTop: '1em' }}>
         <Header as='h1' attached='top'>{query.storeName}</Header>
@@ -37,14 +39,20 @@ class ShowStoreView extends Component {
           />
           <StorePaidOutsContainer id={query.storeId} {...this.state.filter} render={(loading, error, node) => {
             const columns = [{
-              dataIndex: 'id',
-              title: 'ID',
+              dataIndex: 'createdAt',
+              title: 'Date',
+            }, {
+              dataIndex: 'vendorName',
+              title: 'Vendor'
+            }, {
+              dataIndex: 'total',
+              title: 'Total'
             }];
-            const data = node && node.paidouts.edges ? node.paidouts.edges.map((paidout) => ({
+            const data = node && node.paidoutsByDate.edges ? node.paidoutsByDate.edges.map((paidout) => ({
               id: paidout.node.id,
-              createdAt: paidout.node.createdAt,
+              createdAt: paidout.node.created_at,
               vendorName: paidout.node.vendor ? paidout.node.vendor.name : '',
-              amount: paidout.node.amount
+              total: paidout.node.total
             })) : [];
             const rightCommands = [{
               label: 'Create',
